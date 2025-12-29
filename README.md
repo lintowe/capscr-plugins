@@ -20,4 +20,4 @@ See the [wiki](https://github.com/lintowe/capscr-plugins/wiki) for plugin develo
 
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE) for details.
