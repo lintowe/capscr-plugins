@@ -1,0 +1,13 @@
+[package]
+name = "capscr-borders"
+version = "0.1.0"
+edition = "2021"
+description = "Image borders plugin for capscr"
+license = "MIT"
+
+[dependencies]
+capscr = { path = "../../capscr" }
+image = "0.25"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+directories = "5.0"
