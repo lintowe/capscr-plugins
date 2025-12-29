@@ -1,6 +1,6 @@
 # capscr-plugins
 
-Official plugins for [capscr](https://github.com/lintowe/capscr).
+Official plugins for [capscr](https://rot.lt).
 
 ## Plugins
 
@@ -13,6 +13,10 @@ Official plugins for [capscr](https://github.com/lintowe/capscr).
 ## Installation
 
 Build with `cargo build --release`, then place the compiled libraries in capscr's plugins directory.
+
+## Creating Plugins
+
+See the [wiki](https://github.com/lintowe/capscr-plugins/wiki) for plugin development documentation.
 
 ## License
 
