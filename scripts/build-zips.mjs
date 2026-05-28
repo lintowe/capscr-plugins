@@ -1,21 +1,24 @@
 #!/usr/bin/env node
-// Pack each plugin folder into a release zip, compute sha256, update
+// Build each plugin and pack it into a release zip, compute sha256, update
 // registry.json. Run from repo root: `node scripts/build-zips.mjs`.
 //
-// Files included in each zip: plugin.toml (required), README.md (if present),
-// assets/** (if present).
-// Excluded: src/, Cargo.toml, Cargo.lock, target/, *.rs (the runtime code
-// is v0.4-pending — it ships in a follow-up zip when the host lands).
+// WASM plugins (plugin.toml has `type = "wasm"`): this compiles the crate to
+// wasm32-unknown-unknown and includes the resulting module as `plugin.wasm`.
+//   Prereq: `rustup target add wasm32-unknown-unknown`.
+// Metadata-only plugins (no wasm runtime — e.g. sounds, hotbar pending audio/UI
+// host capabilities): packed with just their manifest + docs.
 //
-// Pure-JS implementation. No PowerShell / tar / zip / 7z dependency — uses
-// node's built-in `zlib.deflateRawSync` + manual ZIP container assembly. The
-// zip format is documented in APPNOTE.TXT §4; this covers the subset we need
-// (STORE / DEFLATE entries, no encryption, no zip64).
+// Files in each zip: plugin.toml (required), plugin.wasm (wasm plugins),
+// README.md (if present), assets/** (if present).
+// Excluded: src/, Cargo.toml, Cargo.lock, target/.
+//
+// Pure-JS zip writer (zlib.deflateRawSync + manual ZIP container) so there's no
+// tar/zip/7z dependency. APPNOTE.TXT §4 subset: STORE/DEFLATE, no zip64.
 
 import { deflateRawSync } from "node:zlib";
 import { createHash } from "node:crypto";
+import { execSync } from "node:child_process";
 import {
-  cpSync,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -31,10 +34,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
 const distDir = join(root, "dist");
 const registryPath = join(root, "registry.json");
+const WASM_TARGET = "wasm32-unknown-unknown";
 
-// CRC-32 / ISO-3309, table-driven so each zip build doesn't recompute the
-// polynomial reflections. Defined at module-init time so the helpers below
-// can reference it.
 const CRC_TABLE = (() => {
   const t = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
@@ -48,6 +49,37 @@ const CRC_TABLE = (() => {
 })();
 
 const registry = JSON.parse(readFileSync(registryPath, "utf8"));
+
+// a plugin is a WASM plugin if its manifest declares `type = "wasm"`. We read
+// the raw text rather than parse TOML to avoid a dependency.
+function isWasmPlugin(pluginDir) {
+  const manifest = join(pluginDir, "plugin.toml");
+  if (!existsSync(manifest)) return false;
+  return /type\s*=\s*"wasm"/.test(readFileSync(manifest, "utf8"));
+}
+
+// package name convention: crate = `capscr-<id>`; the wasm artifact replaces
+// dashes with underscores → `capscr_<id>.wasm`.
+const crateName = (id) => `capscr-${id}`;
+const wasmArtifact = (id) =>
+  join(
+    root,
+    "target",
+    WASM_TARGET,
+    "release",
+    `capscr_${id.replace(/-/g, "_")}.wasm`,
+  );
+
+// compile every wasm plugin once, up front, in a single cargo invocation.
+const wasmPlugins = registry.plugins.filter((e) =>
+  isWasmPlugin(join(root, e.id)),
+);
+if (wasmPlugins.length > 0) {
+  const pkgArgs = wasmPlugins.map((e) => `-p ${crateName(e.id)}`).join(" ");
+  const cmd = `cargo build --release --target ${WASM_TARGET} ${pkgArgs}`;
+  console.log(`[build] ${cmd}`);
+  execSync(cmd, { cwd: root, stdio: "inherit" });
+}
 
 if (existsSync(distDir)) {
   rmSync(distDir, { recursive: true, force: true });
@@ -76,6 +108,19 @@ for (const entry of registry.plugins) {
       files.push({ name, body: readFileSync(p) });
     }
   }
+
+  // wasm plugins: include the compiled module as plugin.wasm
+  if (isWasmPlugin(pluginDir)) {
+    const wasmPath = wasmArtifact(entry.id);
+    if (!existsSync(wasmPath)) {
+      console.warn(
+        `[skip] ${entry.id}: ${wasmPath} not found — did the build fail?`,
+      );
+      continue;
+    }
+    files.push({ name: "plugin.wasm", body: readFileSync(wasmPath) });
+  }
+
   const assetsDir = join(pluginDir, "assets");
   if (existsSync(assetsDir) && statSync(assetsDir).isDirectory()) {
     for (const rel of walk(assetsDir, "")) {
@@ -127,39 +172,37 @@ function buildZip(files) {
     const method = useDeflate ? 8 : 0;
     const payload = useDeflate ? compressed : f.body;
 
-    // local file header
     const lfh = Buffer.alloc(30);
-    lfh.writeUInt32LE(0x04034b50, 0); // signature
-    lfh.writeUInt16LE(20, 4);          // version needed
-    lfh.writeUInt16LE(0, 6);           // gp bit flag
+    lfh.writeUInt32LE(0x04034b50, 0);
+    lfh.writeUInt16LE(20, 4);
+    lfh.writeUInt16LE(0, 6);
     lfh.writeUInt16LE(method, 8);
-    lfh.writeUInt16LE(0, 10);          // mod time
-    lfh.writeUInt16LE(0, 12);          // mod date
+    lfh.writeUInt16LE(0, 10);
+    lfh.writeUInt16LE(0, 12);
     lfh.writeUInt32LE(crc, 14);
-    lfh.writeUInt32LE(payload.length, 18); // compressed size
-    lfh.writeUInt32LE(f.body.length, 22);  // uncompressed size
+    lfh.writeUInt32LE(payload.length, 18);
+    lfh.writeUInt32LE(f.body.length, 22);
     lfh.writeUInt16LE(nameBytes.length, 26);
-    lfh.writeUInt16LE(0, 28);          // extra field length
+    lfh.writeUInt16LE(0, 28);
     parts.push(lfh, nameBytes, payload);
 
-    // central directory header — we'll concat after all locals
     const cdh = Buffer.alloc(46);
     cdh.writeUInt32LE(0x02014b50, 0);
-    cdh.writeUInt16LE(20, 4);          // version made by
-    cdh.writeUInt16LE(20, 6);          // version needed
-    cdh.writeUInt16LE(0, 8);           // gp bit flag
+    cdh.writeUInt16LE(20, 4);
+    cdh.writeUInt16LE(20, 6);
+    cdh.writeUInt16LE(0, 8);
     cdh.writeUInt16LE(method, 10);
-    cdh.writeUInt16LE(0, 12);          // mod time
-    cdh.writeUInt16LE(0, 14);          // mod date
+    cdh.writeUInt16LE(0, 12);
+    cdh.writeUInt16LE(0, 14);
     cdh.writeUInt32LE(crc, 16);
     cdh.writeUInt32LE(payload.length, 20);
     cdh.writeUInt32LE(f.body.length, 24);
     cdh.writeUInt16LE(nameBytes.length, 28);
-    cdh.writeUInt16LE(0, 30);          // extra field length
-    cdh.writeUInt16LE(0, 32);          // comment length
-    cdh.writeUInt16LE(0, 34);          // disk number start
-    cdh.writeUInt16LE(0, 36);          // internal attrs
-    cdh.writeUInt32LE(0, 38);          // external attrs
+    cdh.writeUInt16LE(0, 30);
+    cdh.writeUInt16LE(0, 32);
+    cdh.writeUInt16LE(0, 34);
+    cdh.writeUInt16LE(0, 36);
+    cdh.writeUInt32LE(0, 38);
     cdh.writeUInt32LE(offset, 42);
     central.push(cdh, nameBytes);
 
@@ -170,7 +213,6 @@ function buildZip(files) {
   const centralBuf = Buffer.concat(central);
   parts.push(centralBuf);
 
-  // end of central directory record
   const eocd = Buffer.alloc(22);
   eocd.writeUInt32LE(0x06054b50, 0);
   eocd.writeUInt16LE(0, 4);

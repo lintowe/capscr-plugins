@@ -1,0 +1,18 @@
+enabled = true
+
+[plugin]
+id = "desktop-toast"
+name = "Desktop Toast"
+version = "0.1.0"
+author = "lintowe"
+description = "Show a desktop notification with the link after a successful upload."
+
+[runtime]
+type = "wasm"
+file = "plugin.wasm"
+
+[hooks]
+on_upload_success = "capscr_on_upload_success"
+
+[capabilities]
+notifications = ["show"]

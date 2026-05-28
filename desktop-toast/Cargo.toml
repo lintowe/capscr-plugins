@@ -1,0 +1,10 @@
+[package]
+name = "capscr-desktop-toast"
+version = "0.1.0"
+edition = "2021"
+description = "Show a desktop notification with the URL on successful upload"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]

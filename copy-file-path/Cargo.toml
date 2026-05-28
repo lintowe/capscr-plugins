@@ -1,0 +1,10 @@
+[package]
+name = "capscr-copy-file-path"
+version = "0.1.0"
+edition = "2021"
+description = "Copy the saved capture's file path to the clipboard"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]

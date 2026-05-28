@@ -1,0 +1,10 @@
+[package]
+name = "capscr-webhook-notify"
+version = "0.1.0"
+edition = "2021"
+description = "POST the uploaded URL to a Discord/Slack-compatible webhook"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]

@@ -1,0 +1,10 @@
+[package]
+name = "capscr-capture-logger"
+version = "0.1.0"
+edition = "2021"
+description = "Log capture-saved and upload-success events to capscr's log"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]

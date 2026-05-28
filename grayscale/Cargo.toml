@@ -1,0 +1,10 @@
+[package]
+name = "capscr-grayscale"
+version = "0.1.0"
+edition = "2021"
+description = "Convert every capture to grayscale before save/upload"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]

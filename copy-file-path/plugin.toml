@@ -1,0 +1,18 @@
+enabled = true
+
+[plugin]
+id = "copy-file-path"
+name = "Copy File Path"
+version = "0.1.0"
+author = "lintowe"
+description = "Copy the saved capture's file path to the clipboard."
+
+[runtime]
+type = "wasm"
+file = "plugin.wasm"
+
+[hooks]
+on_capture_saved = "capscr_on_capture_saved"
+
+[capabilities]
+clipboard = ["write"]

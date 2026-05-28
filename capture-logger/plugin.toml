@@ -1,0 +1,19 @@
+enabled = true
+
+[plugin]
+id = "capture-logger"
+name = "Capture Logger"
+version = "0.1.0"
+author = "lintowe"
+description = "Log each saved capture and successful upload to capscr's log."
+
+[runtime]
+type = "wasm"
+file = "plugin.wasm"
+
+[hooks]
+on_capture_saved = "capscr_on_capture_saved"
+on_upload_success = "capscr_on_upload_success"
+
+# no capabilities needed — the log import is always available
+[capabilities]

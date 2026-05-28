@@ -1,7 +1,24 @@
 [workspace]
 resolver = "2"
 members = [
-    "borders",
+    # native-trait reference plugins (metadata-only until they're ported to the
+    # WASM runtime — sounds needs an audio host import, hotbar needs a UI surface)
     "sounds",
     "hotbar",
+    # WASM plugins (cdylib, wasm32-unknown-unknown) for the shipped runtime
+    "borders",
+    "copy-file-path",
+    "capture-logger",
+    "desktop-toast",
+    "grayscale",
+    "webhook-notify",
 ]
+
+# small, fast plugin binaries. wasm plugins are cdylibs built for
+# wasm32-unknown-unknown; abort on panic (no unwinding across the host boundary).
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -1,0 +1,20 @@
+enabled = true
+
+[plugin]
+id = "webhook-notify"
+name = "Webhook Notify"
+version = "0.1.0"
+author = "lintowe"
+description = "POST the uploaded link to a Discord/Slack-compatible webhook."
+
+[runtime]
+type = "wasm"
+file = "plugin.wasm"
+
+[hooks]
+on_upload_success = "capscr_on_upload_success"
+
+# the fetch pattern MUST cover the WEBHOOK_URL compiled into src/lib.rs.
+# edit both to point at your own webhook (https only).
+[capabilities]
+fetch = ["https://discord.com/api/webhooks/*"]

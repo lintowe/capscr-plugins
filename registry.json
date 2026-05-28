@@ -1,22 +1,109 @@
 {
   "version": 1,
-  "updated_unix": 1779138940,
+  "updated_unix": 1779993832,
   "plugins": [
+    {
+      "id": "copy-file-path",
+      "name": "Copy File Path",
+      "version": "0.1.0",
+      "description": "Copy the saved capture's file path to the clipboard.",
+      "author": "lintowe",
+      "homepage": "https://rot.lt/work/capscr/plugins#copy-file-path",
+      "download_url": "https://rot.lt/capscr/plugins/copy-file-path-0.1.0.zip",
+      "sha256": "cee950b943c88e3e42625ac3724070d0594d29be74d9eaea9ac3264a5477c2b5",
+      "size_bytes": 4619,
+      "tags": [
+        "clipboard",
+        "automation"
+      ],
+      "min_capscr_version": "0.4.0",
+      "license": "MIT"
+    },
+    {
+      "id": "capture-logger",
+      "name": "Capture Logger",
+      "version": "0.1.0",
+      "description": "Log each saved capture and successful upload to capscr's log.",
+      "author": "lintowe",
+      "homepage": "https://rot.lt/work/capscr/plugins#capture-logger",
+      "download_url": "https://rot.lt/capscr/plugins/capture-logger-0.1.0.zip",
+      "sha256": "922e209b7cd6007dac7e4228afaa4392acb1805cd8a36a3ca4f319e678fdebde",
+      "size_bytes": 4662,
+      "tags": [
+        "logging",
+        "dev"
+      ],
+      "min_capscr_version": "0.4.0",
+      "license": "MIT"
+    },
+    {
+      "id": "desktop-toast",
+      "name": "Desktop Toast",
+      "version": "0.1.0",
+      "description": "Show a desktop notification with the link after a successful upload.",
+      "author": "lintowe",
+      "homepage": "https://rot.lt/work/capscr/plugins#desktop-toast",
+      "download_url": "https://rot.lt/capscr/plugins/desktop-toast-0.1.0.zip",
+      "sha256": "bb72fcb4a92aeef4f9dcb4fac7274bd2e74981b4670c7596525e9dd1c77054a9",
+      "size_bytes": 4550,
+      "tags": [
+        "notifications",
+        "automation"
+      ],
+      "min_capscr_version": "0.4.0",
+      "license": "MIT"
+    },
+    {
+      "id": "grayscale",
+      "name": "Grayscale",
+      "version": "0.1.0",
+      "description": "Convert every capture to grayscale before it's saved, copied, or uploaded.",
+      "author": "lintowe",
+      "homepage": "https://rot.lt/work/capscr/plugins#grayscale",
+      "download_url": "https://rot.lt/capscr/plugins/grayscale-0.1.0.zip",
+      "sha256": "34906a74b1b4274bc380748701a3e9ee3bf662acde12ebc1a50284ba0b35f428",
+      "size_bytes": 5080,
+      "tags": [
+        "editor",
+        "post-capture",
+        "filter"
+      ],
+      "min_capscr_version": "0.5.0",
+      "license": "MIT"
+    },
+    {
+      "id": "webhook-notify",
+      "name": "Webhook Notify",
+      "version": "0.1.0",
+      "description": "POST the uploaded link to a Discord/Slack-compatible webhook.",
+      "author": "lintowe",
+      "homepage": "https://rot.lt/work/capscr/plugins#webhook-notify",
+      "download_url": "https://rot.lt/capscr/plugins/webhook-notify-0.1.0.zip",
+      "sha256": "83de710ef93b55d730be35dd4ea53a7f8ec4dcd6bedec1028372cf8d8af26e04",
+      "size_bytes": 8429,
+      "tags": [
+        "automation",
+        "webhook",
+        "notifications"
+      ],
+      "min_capscr_version": "0.5.0",
+      "license": "MIT"
+    },
     {
       "id": "borders",
       "name": "Borders",
-      "version": "0.1.0",
-      "description": "Add customizable borders, drop shadows, and rounded corners to captures.",
+      "version": "0.2.0",
+      "description": "Add a solid border around captures.",
       "author": "lintowe",
       "homepage": "https://rot.lt/work/capscr/plugins#borders",
-      "download_url": "https://rot.lt/capscr/plugins/borders-0.1.0.zip",
-      "sha256": "02a3ede63b8f4d881e38fa5cb2cea3b772ab89a54dff1bc9bc1429387805ca5d",
-      "size_bytes": 966,
+      "download_url": "https://rot.lt/capscr/plugins/borders-0.2.0.zip",
+      "sha256": "6783347396b7e12e512a6a40542df4d6af8d02c31f6ec45c9478a80097d1b594",
+      "size_bytes": 6413,
       "tags": [
         "editor",
         "post-capture"
       ],
-      "min_capscr_version": "0.3.29",
+      "min_capscr_version": "0.5.0",
       "license": "MIT"
     },
     {

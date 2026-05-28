@@ -1,11 +1,11 @@
 enabled = true
 
 [plugin]
-id = "borders"
-name = "Borders"
-version = "0.2.0"
+id = "grayscale"
+name = "Grayscale"
+version = "0.1.0"
 author = "lintowe"
-description = "Add a solid border around captures."
+description = "Convert every capture to grayscale before it's saved, copied, or uploaded."
 
 [runtime]
 type = "wasm"

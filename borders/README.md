@@ -1,33 +1,38 @@
-# borders
+# Borders
 
-Adds borders, drop shadows, and rounded corners to captures.
+Adds a solid border around each capture.
 
 ## what it does
 
-Runs on the `PostCapture` event. Takes the captured RGBA image, applies the configured border treatment, and replaces the image in the pipeline so downstream actions (save, clipboard, upload) see the bordered version.
+Runs on the `on_capture` event (capscr 0.5.0+). Takes the captured RGBA pixels,
+draws a solid border around them, and returns the bordered image as the
+replacement so downstream actions (save, clipboard, upload) see the bordered
+version.
+
+- **Hook:** `on_capture` (image-blob API)
+- **Capability:** `image = ["read", "modify"]`
+- **Requires:** capscr 0.5.0+
 
 ## status
 
-**v0.3.x: metadata-only.** capscr's plugin runtime arrives in v0.4. This plugin's manifest installs and shows under "installed", but the border rendering doesn't run yet. The full algorithm sits in `src/lib.rs` ready for v0.4.
+**v0.2.0: live WASM port (solid style).** This is the first functional build,
+targeting capscr's WASM plugin runtime. The styling is a built-in default
+(border thickness 8 px, dark gray) because the sandbox has no filesystem access
+for a config file.
 
-## config (v0.4 preview)
+The original native reference implementation (in this repo's git history) also
+did drop shadows, rounded corners, and double/dashed/3-D styles. Those port to
+the same `on_capture` byte-in/byte-out shape — and once a config host-API lands,
+the TOML config below can drive them again.
+
+## planned config
 
 ```toml
-[borders]
-enabled = true
 style = "solid"          # solid | double | dashed | dotted | groove | ridge | inset | outset
-size = 3
-color = [60, 60, 60, 255]   # RGBA, 0-255
-corner_radius = 0           # in px; 0 = sharp corners
+size = 8
+color = [40, 40, 40, 255]   # RGBA, 0-255
+corner_radius = 0
 padding = 0
-background_color = []       # optional; empty = inherit
-only_modes = []             # optional; ["region", "window", "fullscreen"]
-
-[borders.shadow]            # optional block
-offset_x = 4
-offset_y = 4
-blur_radius = 12
-color = [0, 0, 0, 96]
 ```
 
 ## license
